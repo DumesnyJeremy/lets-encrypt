@@ -4,7 +4,7 @@ import (
 	"github.com/prasmussen/gandi-api/client"
 	"github.com/prasmussen/gandi-api/domain/zone"
 
-	"ssl-ar/lets-encrypt/providers/dns"
+	"github.com/DumesnyJeremy/lets-encrypt/providers/dns"
 )
 
 type InfoGandi struct {

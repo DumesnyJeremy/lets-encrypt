@@ -7,9 +7,9 @@ import (
 	"github.com/stretchr/testify/mock"
 	"testing"
 
-	"ssl-ar/lets-encrypt/providers/dns"
-	pdns_mocks "ssl-ar/mocks/go-powerdns"
-	pdns_zones_mocks "ssl-ar/mocks/go-powerdns/apis/zones"
+	"github.com/DumesnyJeremy/lets-encrypt/providers/dns"
+	pdns_mocks "github.com/DumesnyJeremy/lets-encrypt/go-powerdns"
+	pdns_zones_mocks "github.com/DumesnyJeremy/lets-encrypt/go-powerdns"
 )
 
 const domain = "blah.pangolin.re"

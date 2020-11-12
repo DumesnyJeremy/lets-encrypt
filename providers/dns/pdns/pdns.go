@@ -7,7 +7,7 @@ import (
 	"github.com/mittwald/go-powerdns/apis/zones"
 	"strings"
 
-	"ssl-ar/lets-encrypt/providers/dns"
+	"github.com/DumesnyJeremy/lets-encrypt/providers/dns"
 )
 
 type InfoPDNS struct {
