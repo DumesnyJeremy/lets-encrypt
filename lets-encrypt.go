@@ -11,8 +11,7 @@ import (
 	"github.com/go-acme/lego/v4/registration"
 	"os"
 
-	"ssl-ar/certificate-prober"
-	"ssl-ar/lets-encrypt/providers/dns"
+	"github.com/DumesnyJeremy/lets-encrypt/providers/dns"
 )
 
 type LetsEncryptCertConfig struct {
@@ -59,34 +58,34 @@ func (LE *LetsEncrypt) SetDNSProvider(dnsProvider dns.DNSProvider) error {
 }
 
 // Tries to obtain a certificate using all domains passed into it.
-func (LE *LetsEncrypt) AskCertificate(site certificate_prober.SiteCertProber) error {
+func (LE *LetsEncrypt) AskCertificate(fullDomainName string) error {
 	request := certificate.ObtainRequest{
-		Domains: []string{site.GetConfig().URL},
+		Domains: []string{fullDomainName},
 		Bundle:  true,
 	}
 	certificates, err := LE.Client.Certificate.Obtain(request)
 	if err != nil {
 		return err
 	}
-	if err := LE.addCertificateIntoFolder(certificates, site.GetConfig()); err != nil {
+	if err := LE.addCertificateIntoFolder(certificates, fullDomainName); err != nil {
 		return err
 	}
 	return nil
 }
 
 // Split the certificate in two, the key and the certificate to write them in different files.
-func (LE *LetsEncrypt) addCertificateIntoFolder(certificates *certificate.Resource, server certificate_prober.Config) error {
-	nameFolder := LE.CertificatesRootPath + "/" + server.URL
+func (LE *LetsEncrypt) addCertificateIntoFolder(certificates *certificate.Resource, fullDomainName string) error {
+	nameFolder := LE.CertificatesRootPath + "/" + fullDomainName
 	if _, err := os.Stat(nameFolder); os.IsNotExist(err) {
 		if err := os.Mkdir(nameFolder, os.ModePerm); err != nil {
 			return err
 		}
 	}
-	PrivateKeyFile, err := os.Create(nameFolder + "/" + server.URL + ".key")
+	PrivateKeyFile, err := os.Create(nameFolder + "/" + fullDomainName + ".key")
 	if err != nil {
 		return err
 	}
-	CertifFile, err := os.Create(nameFolder + "/" + server.URL + ".crt")
+	CertifFile, err := os.Create(nameFolder + "/" + fullDomainName + ".crt")
 	if err != nil {
 		return err
 	}
