@@ -21,34 +21,7 @@ by Let's Encrypt and if it finds a match, the certificate will be sent and save 
 
 
 ### Usage
-#### Configuration file
-```json
-"lets_encrypt_user": {
-    "mail": "example@gmail.com",
-    "account_path": "/etc/letsencrypt/account"
-},
-"dns_servers": [
-    {
-      "name": "Name",
-      "type": "pdns",
-      "url": "http://0.0.0.0:8080",
-      "api_key": "Api Key",
-      "server_id": "localhost"
-    }
-],
-"certificates_root_path": "/etc/ssl-alert-renew/letsencrypt/certificates",
-```
-
-If you want to create a configuration file, you can use [Viper](https://github.com/spf13/viper#putting-values-into-viper) to read,
-and fill this structure by Unmarshalling the config file. The `mapstructure` will read all configuration file type.
-```go
-type Config struct {
-    LetsEncryptUser lets_encrypt.LetsEncryptUserConfig `mapstructure:"lets_encrypt_user"`
-    DNSServers      []dns.DNSServerConfig              `mapstructure:"dns_servers"`
-    CertRootPath    string                             `mapstructure:"certificates_root_path"`
-}
-```
-#### Without configuration file
+#### Straightforward usage
 Use a custom DNS server to verify LE challenge and generate a new certificate
 ```go
 // Set location for both certificates and account directories
@@ -75,6 +48,51 @@ letsEncrypt.SetDNSProvider(dns.DNSProvider{DNSServer: dnsServer})
 // Retrieve a new certificate
 letsEncrypt.AskCertificate("targeted.site.com")
 ```
+
+#### Using a configuration file
+If you want to create a configuration file, you can use [Viper](https://github.com/spf13/viper#putting-values-into-viper) to read,
+and fill this structure by Unmarshalling the config file. The `mapstructure` will read all configuration file type.
+```go
+type Config struct {
+    LetsEncryptUser lets_encrypt.LetsEncryptUserConfig `mapstructure:"lets_encrypt_user"`
+    DNSServers      []dns.DNSServerConfig              `mapstructure:"dns_servers"`
+    CertRootPath    string                             `mapstructure:"certificates_root_path"`
+}
+```
+
+Here is a JSON configuration file example
+
+```json
+"lets_encrypt_user": {
+    "mail": "example@gmail.com",
+    "account_path": "/etc/letsencrypt/account"
+},
+"dns_servers": [
+    {
+      "name": "Name",
+      "type": "pdns",
+      "url": "http://0.0.0.0:8080",
+      "api_key": "Api Key",
+      "server_id": "localhost"
+    }
+],
+"certificates_root_path": "/etc/ssl-alert-renew/letsencrypt/certificates",
+```
+
+Fill the structure using [Viper](https://github.com/spf13/viper#putting-values-into-viper)
+
+```go
+func ParseConfig(configFilePath string) (*Config, error) {
+	var configArray Config
+	viper.SetConfigName("config")
+	viper.SetConfigType(json)
+	viper.AddConfigPath("path/to/config/file")
+	_ = viper.ReadInConfig()
+	_ = viper.Unmarshal(&configArray)
+	return &configInfo, nil
+}
+```
+
 This is what the `AccountPath` file will look like after creating a new certificate 
 ```
 letsencrypt
