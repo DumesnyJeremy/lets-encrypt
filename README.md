@@ -1,11 +1,12 @@
 # lets-encrypt
+A library providing let's encrypt DNS providers for challenge resolution.
 
 This project aims to automate renew certificates for the **Public** and **Private** 
 WedSites, via [Let's Encrypt](https://letsencrypt.org/).  
 Obtaining a certificate for private sites is due to the fact that the program solve the DNS-01 challenge.
 It will allow to prove that you control the DNS for your domain name by putting a
 specific value in a TXT record under that domain name. Then the DNS system will be queried 
-by Let's Encrypt and if it finds a match, the certificate will be sent.
+by Let's Encrypt and if it finds a match, the certificate will be sent and save into files.
 
 
 ### Current Features
@@ -18,17 +19,14 @@ by Let's Encrypt and if it finds a match, the certificate will be sent.
 * The private key is generated locally on your system.
 * Free and Open Source Software, made with Go.
 
-### System Requirements
-Used to create the Let's Encrypt account.  
-After creation the user will be saved with the Public and Private Key and the registration file.
-```
+
+### Usage
+#### Configuration file
+```json
 "lets_encrypt_user": {
     "mail": "example@gmail.com",
     "account_path": "/etc/letsencrypt/account"
-}
-```
-Will be used to validate the challenge, by adding the TXT inside.  
-```
+},
 "dns_servers": [
     {
       "name": "Name",
@@ -37,29 +35,58 @@ Will be used to validate the challenge, by adding the TXT inside.
       "api_key": "Api Key",
       "server_id": "localhost"
     }
-]
-```
-Here to save the new certificate and key for the site.
-```
+],
 "certificates_root_path": "/etc/ssl-alert-renew/letsencrypt/certificates",
 ```
 
-### Usage
+If you want to create a configuration file, you can use [Viper](https://github.com/spf13/viper#putting-values-into-viper) to read,
+and fill this structure by Unmarshalling the config file. The `mapstructure` will read all configuration file type.
+```go
+type Config struct {
+    LetsEncryptUser lets_encrypt.LetsEncryptUserConfig `mapstructure:"lets_encrypt_user"`
+    DNSServers      []dns.DNSServerConfig              `mapstructure:"dns_servers"`
+    CertRootPath    string                             `mapstructure:"certificates_root_path"`
+}
+```
+Use a custom DNS server to verify LE challenge and generate a new certificate
 
-Those 3 methods are used to set up all we need to validate the challenge.  
-Give them in argument, all the configuration already create in the `.json` file.
+#### Without configuration file
+```go
+// Set location for both certificates and account directories
+certificatesPath := "path/to/cert/root"
+accountPath := "path/to/account"
+
+// Initialize LE with a new user
+leUser, _ := lets_encrypt.InitLetsEncryptUser(lets_encrypt.LetsEncryptUserConfig {
+    "mail": "example@gmail.com",
+    "account_path": accountPath,
+})
+letsEncrypt, _ := lets_encrypt.InitLetsEncrypt(certificatesPath, leUser.GetLEUser())
+
+// Use a custom powerDNS server as a provider for LE DNS challenge
+dnsServer := initDNSServer(dns.DNSServerConfig {
+      "name": "Name",
+      "type": "pdns",
+      "url": "http://0.0.0.0:8080",
+      "api_key": "Api Key",
+      "server_id": "localhost"
+})
+letsEncrypt.SetDNSProvider(dns.DNSProvider{DNSServer: dnsServer})
+
+// Retrieve a new certificate
+letsEncrypt.AskCertificate("targeted.site.com")
 ```
-dnsServers := initDNSServers(config.DNSServers)
-letsEncryptCustomUser, err := lets_encrypt.InitLetsEncryptUser(config.LetsEncryptUser)
-letsEncrypt, err := lets_encrypt.InitLetsEncrypt(config.CertRootPath, letsEncryptCustomUser.GetLEUser())
+
+When you will lunch the program Saved account/certificate example:
 ```
-Found the domain who is the owner of the site certificate that we want to renew.
-```
-dnsServers[...].IsAuthoritativeForDomain(siteURL)
-```
-Methods that communicate with Let's Encrypt to set the DNS Provider, and ask to resolve the challenge
-to obtain the new certificate.
-```
-LetsEncrypt.SetDNSProvider(dns.DNSProvider{DNSServer: DNSServer})
-LetsEncrypt.AskCertificate(siteURL)
+letsencrypt
+    ├── account
+    │   ├── privKey.pem
+    │   ├── pubKey.pem
+    │   └── registration.json
+    └── certificates
+        └── example.com.re
+            ├── example.com.crt
+            └── example.com.key
+
 ```
