@@ -58,18 +58,18 @@ accountPath := "path/to/account"
 
 // Initialize LE with a new user
 leUser, _ := lets_encrypt.InitLetsEncryptUser(lets_encrypt.LetsEncryptUserConfig {
-    "mail": "example@gmail.com",
-    "account_path": accountPath,
+    Mail: "example@gmail.com",
+    AccountPath: accountPath,
 })
 letsEncrypt, _ := lets_encrypt.InitLetsEncrypt(certificatesPath, leUser.GetLEUser())
 
 // Use a custom powerDNS server as a provider for LE DNS challenge
-dnsServer := initDNSServer(dns.DNSServerConfig {
-      "name": "Name",
-      "type": "pdns",
-      "url": "http://0.0.0.0:8080",
-      "api_key": "Api Key",
-      "server_id": "localhost"
+dnsServer := dns.initDNSServer(dns.DNSServerConfig {
+      Name: "Name",
+      Type: "pdns",
+      URL: "http://0.0.0.0:8080",
+      APIKey: "Api Key",
+      ServerID: "localhost"
 })
 letsEncrypt.SetDNSProvider(dns.DNSProvider{DNSServer: dnsServer})
 
