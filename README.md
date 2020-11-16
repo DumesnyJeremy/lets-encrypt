@@ -49,6 +49,20 @@ letsEncrypt.SetDNSProvider(dns.DNSProvider{DNSServer: dnsServer})
 letsEncrypt.AskCertificate("targeted.site.com")
 ```
 
+This is what the `AccountPath` file will look like after creating a new certificate 
+```
+letsencrypt
+    ├── account
+    │   ├── privKey.pem
+    │   ├── pubKey.pem
+    │   └── registration.json
+    └── certificates
+        └── example.com.re
+            ├── example.com.crt
+            └── example.com.key
+```
+
+
 #### Using a configuration file
 If you want to create a configuration file, you can use [Viper](https://github.com/spf13/viper#putting-values-into-viper) to read,
 and fill this structure by Unmarshalling the config file. The `mapstructure` will read all configuration file type.
@@ -91,17 +105,4 @@ func ParseConfig(configFilePath string) (*Config, error) {
 	_ = viper.Unmarshal(&configArray)
 	return &configInfo, nil
 }
-```
-
-This is what the `AccountPath` file will look like after creating a new certificate 
-```
-letsencrypt
-    ├── account
-    │   ├── privKey.pem
-    │   ├── pubKey.pem
-    │   └── registration.json
-    └── certificates
-        └── example.com.re
-            ├── example.com.crt
-            └── example.com.key
 ```
