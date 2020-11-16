@@ -48,9 +48,8 @@ type Config struct {
     CertRootPath    string                             `mapstructure:"certificates_root_path"`
 }
 ```
-Use a custom DNS server to verify LE challenge and generate a new certificate
-
 #### Without configuration file
+Use a custom DNS server to verify LE challenge and generate a new certificate
 ```go
 // Set location for both certificates and account directories
 certificatesPath := "path/to/cert/root"
@@ -76,8 +75,7 @@ letsEncrypt.SetDNSProvider(dns.DNSProvider{DNSServer: dnsServer})
 // Retrieve a new certificate
 letsEncrypt.AskCertificate("targeted.site.com")
 ```
-
-When you will lunch the program Saved account/certificate example:
+This is what the `AccountPath` file will look like after creating a new certificate 
 ```
 letsencrypt
     ├── account
@@ -88,5 +86,4 @@ letsencrypt
         └── example.com.re
             ├── example.com.crt
             └── example.com.key
-
 ```
